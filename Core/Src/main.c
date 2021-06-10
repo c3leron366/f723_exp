@@ -105,7 +105,45 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
   if(huart->Instance == USART6)
   {
-      printf("\nGet uart error\n");
+      printf("ERROR uart callback\r\n");
+      /*
+    uint32_t er = HAL_UART_GetError(huart);
+
+    switch(er)
+    {
+      case HAL_UART_ERROR_PE:
+	printf("[ERR] ERR_Callbck - Parity error\r\n");
+	__HAL_UART_CLEAR_PEFLAG(huart);
+	huart->ErrorCode = HAL_UART_ERROR_NONE;
+	break;
+
+      case HAL_UART_ERROR_NE:
+	printf("[ERR] ERR_Callbck - Noise error\r\n");
+	__HAL_UART_CLEAR_NEFLAG(huart);
+	huart->ErrorCode = HAL_UART_ERROR_NONE;
+	break;
+
+      case HAL_UART_ERROR_FE:
+	printf("[ERR] ERR_Callbck - Frame error\r\n");
+	__HAL_UART_CLEAR_FEFLAG(huart);
+	huart->ErrorCode = HAL_UART_ERROR_NONE;
+	break;
+
+      case HAL_UART_ERROR_ORE:
+	printf("[ERR] ERR_Callbck - Overrun error\r\n");
+	__HAL_UART_CLEAR_OREFLAG(huart);
+	huart->ErrorCode = HAL_UART_ERROR_NONE;
+	break;
+
+      case HAL_UART_ERROR_DMA:
+	printf("[ERR] ERR_Callbck - DMA transfer error\r\n");
+	huart->ErrorCode = HAL_UART_ERROR_NONE;
+	break;
+
+      default:
+	break;
+    }
+    */
   }
 }
 
