@@ -10,8 +10,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
-
-typedef struct ring_buffer_t ring_buffer_t;
+typedef struct ring_buffer_t
+{
+  uint8_t * buffer;
+  size_t head;
+  size_t tail;
+  size_t max;
+  uint8_t full;
+}ring_buffer_t;
+//typedef struct ring_buffer_t ring_buffer_t;
 typedef ring_buffer_t * rbuf_handle_t;
 
 
@@ -24,5 +31,6 @@ void ring_buf_put(rbuf_handle_t r, uint8_t d);
 int ring_buf_put_s(rbuf_handle_t r, uint8_t d);
 int ring_buf_get(rbuf_handle_t r, uint8_t * dest);
 void init_ring_buf(uint8_t * buffer, rbuf_handle_t rbuf, size_t size);
+int ring_buf_remove_last_symbol(rbuf_handle_t r);
 
 #endif /* INC_RING_BUFFER_H_ */

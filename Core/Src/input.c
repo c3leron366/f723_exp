@@ -33,10 +33,16 @@ UART_HandleTypeDef * uart;
 uint8_t buffer[2][INPUT_BUFFER_SIZE] = {{0},{0}};
 rbuf_handle_t _rbuf[2];
 rbuf_handle_t rbuf;
+//TODO refactor ring buffer init function!
+uint8_t rbuf_handle_pool[2][sizeof(ring_buffer_t) + 1] = {{0},{0}};
+volatile uint8_t rbuf_idx = 0;
 
 void init_input(UART_HandleTypeDef * huart)
 {
   uart = huart;
+
+  _rbuf[0] = (rbuf_handle_t)(&rbuf_handle_pool[0][0]);
+  _rbuf[1] = (rbuf_handle_t)(&rbuf_handle_pool[1][0]);
 
   init_ring_buf(
 		(uint8_t *)&buffer[0][0],
@@ -47,7 +53,7 @@ void init_input(UART_HandleTypeDef * huart)
 		(uint8_t *)&buffer[1][0],
 		_rbuf[1],
 		INPUT_BUFFER_SIZE);
-  rbuf = _rbuf[0];
+  rbuf = _rbuf[rbuf_idx];
   UART_ReceiveEnable();
 }
 
@@ -80,20 +86,41 @@ static void backspace_handle(void)
   }
 
 }
-
+volatile uint8_t recv_flag = 0;
 static void eol_handle(void)
 {
+  //в таком виде будет проблема при приеме двух терминальных символов подряд
 //switch input buffer pointer
+//  rbuf_idx ^= 1;
+  rbuf = _rbuf[rbuf_idx];
 //and raise got_message flag
-  uint8_t  data;
-  printf("get message:\r\n");
+  recv_flag += 1;
+}
 
-  while(!ring_buf_get(rbuf, &data))
+void proc_input(void)
+{
+
+  if(recv_flag)
   {
-    printf("%c", data);
-  }
+    uint8_t data;
+    uint8_t tx_idx;
 
-  printf("\r\n");
+
+    tx_idx = rbuf_idx;
+//    tx_idx = rbuf_idx^1;
+    printf("buf %d: ", tx_idx );
+
+    while(!ring_buf_get(_rbuf[tx_idx], &data))
+    {
+      printf("%c", data);
+    }
+
+    printf("\r\n");
+
+    if(recv_flag != 0)
+      recv_flag -= 1;
+
+  }
 }
 
 static void tab_handle(void)
@@ -117,6 +144,7 @@ void insert_character(uint8_t ch)
       break;
     default:
       insert_char_handle(ch);
+
       break;
   }
 }
@@ -133,8 +161,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 #endif
 
     insert_character(UARTDataRX);
-
     UART_ReceiveEnable();
+
   }
 }
 

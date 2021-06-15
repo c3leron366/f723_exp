@@ -8,14 +8,7 @@
 
 
 
-typedef struct ring_buffer_t
-{
-  uint8_t * buffer;
-  size_t head;
-  size_t tail;
-  size_t max;
-  uint8_t full;
-}ring_buffer_t;
+
 
 
 void ring_buf_reset(rbuf_handle_t r)
